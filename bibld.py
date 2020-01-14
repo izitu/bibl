@@ -1,15 +1,34 @@
 # читаем директори и читаем каждый файл в директории, создаем файл карегорий привязки файл-название
 # можно брать от сюда https://bible.by/every-day/ план, но я беру локально из директории Plan.html -- уже не так
 import os, requests, wget
-import datetime, sys
+import datetime
 from bs4 import BeautifulSoup
 import calendar
+from datetime import timedelta
+
+#from datetime import datetime, timedelta
+#def get_dates():
+#    date_format = '%d.%m.%Y'
+#    today = datetime.now()
+#    yesterday = today - timedelta(days=1)
+#    #after_tomorrow = today + timedelta(days=2)
+#   return {'today': today.strftime(date_format),
+#            'yesterday': yesterday.strftime(date_format)}
+#print(get_dates().get('today'))
+#print(get_dates().get('yesterday'))
 
 #print (calendar.monthrange(2019,8)[1])
-
+#d = datetime.date.now()
+#vchera = datetime.today() - timedelta(days=1)
+#print(d.year) # 2012
+#print(d.day)  # 14
+#print(d.month) # 12
+#vchera = print(d.day)
+#print(vchera)
+#print (datetime.date.day())
 #exit(0)
 
-iftest = True
+iftest = False
 s0 = requests.get('https://bible.by/every-day/')
 bs = BeautifulSoup(s0.text, "html.parser")
 
@@ -22,10 +41,11 @@ playlist.close()
 
 
 d = datetime.date.today()
-
-print(d) # 2012
-print('день:', d.day)  # 14
-print('месяц:',d.month) # 12
+yesterday = d - timedelta(days=1)
+print(d)
+print('день:', d.day)
+print('месяц:', d.month)
+print('yesterday:', yesterday)
 d = str(d)
 
 def bibldwn(day, month, year):
@@ -34,6 +54,7 @@ def bibldwn(day, month, year):
 	# -- находим за ним все, что к этому месяцу относится
 	# -- находим только нужный день
 	# -- находим все ссылки на этот день
+	print('Качаем день:', day, ' месяц:', month, ' год:', year)
 
 	links_today = bs('h3', limit=month)[-1].find_next('ol').find_all('li')[day-1].find_all('a')
 
@@ -67,7 +88,9 @@ def bibldwn(day, month, year):
 
 		z1 = soup1.h1.text # заголовок
 		z2 = soup1.find('p',class_="gray").text # подпись
-		z3 = soup1.find('div',class_="text bible").text # текст 
+		z3 = soup1.find('div',class_="text bible").text # текст
+		z3 = z3.replace('Обратите внимание. Номера стихов – это ссылки, ведущие на раздел со сравнением переводов, параллельными ссылками, текстами с номерами Стронга. Попробуйте,', '')
+		z3 = z3.replace('возможно вы будете приятно удивлены.', '')
 		print(z1)
 		print(z2)
 		print(z3)
@@ -133,7 +156,9 @@ try:
     print(ld)
     file.close()
 except FileNotFoundError:
-    print('Файл не найден')
+	# если файла нет - дату ставим вчерашний день
+	print('Файл не найден --- >>> ставим вчерашнюю')
+	ld = yesterday
 except IOError:
     print('Проблемы с открытием')
 
@@ -142,7 +167,7 @@ if (ld == d):
 else:
 	print("Даты не совпадают: текущая дата", d, "дата в файле", ld)
 	# разбираем файл, если даты не совпадают
-	lastday = ld.split("-")
+	lastday = str(ld).split("-")
 	curentday = d.split("-")
 	print(lastday, curentday)
 	if (lastday[0]!=curentday[0]):
@@ -187,7 +212,7 @@ else:
 		if iftest :
 			print("Тестовый режим! в реале качаем с Веры и записываем в файл текущую дату")
 		else :
-			veradwn()
+			# veradwn()
 			# записываем текущую дату в файл
 			file = open("lastdate.dat", "w")
 			file.write(d)
