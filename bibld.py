@@ -86,21 +86,21 @@ def bibldwn(day, month, year):
 		for tag in soup1.find_all('div', class_='hidden-xs'):
 			tag.extract()
 
-		z1 = soup1.h1.text # заголовок
+		#z1 = soup1.h1.text # заголовок
 		z2 = soup1.find('p',class_="gray").text # подпись
 		z3 = soup1.find('div',class_="text bible").text # текст
 		z3 = z3.replace('Обратите внимание. Номера стихов – это ссылки, ведущие на раздел со сравнением переводов, параллельными ссылками, текстами с номерами Стронга. Попробуйте,', '')
 		z3 = z3.replace('возможно вы будете приятно удивлены.', '')
-		print(z1)
+		#print(z1)
 		print(z2)
 		print(z3)
 		read_day = open(namef+'.txt', "w", encoding='utf-8')
-		read_day.write(z1+'\n'+z2+'\n'+z3+'\n')
+		read_day.write(z2+'\n'+z3+'\n')
 		read_day.close()
 
 		playlist = open('bibl.m3u8', "a", encoding='utf-8')
 
-		playlist.write("#EXTINF:"+str(no)+","+z1+"\n")
+		playlist.write("#EXTINF:"+str(no)+","+z2+"\n")
 		playlist.write("/storage/emulated/0/Download/bibl/"+namef+'_'+filename+"\n")
 		no = no + 1
 
