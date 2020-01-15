@@ -67,16 +67,12 @@ def bibldwn(day, month, year):
 		print(link , namef)
 		s1 = requests.get('https://bible.by'+link)
 		soup1 = BeautifulSoup(s1.text, "html.parser")
-		#print(
-		# нужно удалить все лишнее, что вылезает внизу после текста
-		#soup1 = soup1.find('div',class_="hidden-xs").decompose()
-		#soup1.find('span',class_="btn-group").extract()
+
 		# скачаем звук
 		print(soup1.find('source').get('src'))
 		zvuk = str(soup1.find('source').get('src'))
 		filename = wget.download('http:'+zvuk)
 		os.rename(filename, u''+os.getcwd()+'/'+namef+'_'+filename)
-		
 
 
 		for tag in soup1.find_all('span',class_='btn-group'):
@@ -88,14 +84,16 @@ def bibldwn(day, month, year):
 
 		#z1 = soup1.h1.text # заголовок
 		z2 = soup1.find('p',class_="gray").text # подпись
-		z3 = soup1.find('div',class_="text bible").text # текст
-		z3 = z3.replace('Обратите внимание. Номера стихов – это ссылки, ведущие на раздел со сравнением переводов, параллельными ссылками, текстами с номерами Стронга. Попробуйте,', '')
-		z3 = z3.replace('возможно вы будете приятно удивлены.', '')
-		#print(z1)
+		z3 = soup1.find('div', class_="text bible").select('div')  # текст
+		# удаляем последний элемент с мусором
+		z3=z3[:-1]
+
 		print(z2)
 		print(z3)
 		read_day = open(namef+'.txt', "w", encoding='utf-8')
-		read_day.write(z2+'\n'+z3+'\n')
+		read_day.write(z2+'\n')
+		for stroka in z3:
+			read_day.write(stroka.text + '\n')
 		read_day.close()
 
 		playlist = open('bibl.m3u8', "a", encoding='utf-8')
@@ -124,8 +122,6 @@ def veradwn():
 	mp3calt = mp3cal[0].get('download')
 	print(mp3cals, mp3calt)	
 
-	#mp3s = bsoup('a', {"class": "hh-autoplay-link"})[0].get('data-audio-src')
-	#mp3t = bsoup('a', {"class": "hh-autoplay-link"})[0].get('data-audio-title')
 	print("Dowload from radio Vera")
 	filenameevg = wget.download(mp3evgs)
 	filenamecal = wget.download(mp3cals)
@@ -212,7 +208,7 @@ else:
 		if iftest :
 			print("Тестовый режим! в реале качаем с Веры и записываем в файл текущую дату")
 		else :
-			# veradwn()
+			# veradwn() # если нужно скачать с Веры - убрать комментарий
 			# записываем текущую дату в файл
 			file = open("lastdate.dat", "w")
 			file.write(d)
